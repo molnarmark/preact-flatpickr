@@ -1,0 +1,14 @@
+{
+  "name": "preact-flatpickr",
+  "version": "1.0.0",
+  "license": "MIT",
+  "reveal": true,
+  "author": "Mark Molnar <molnarpw@gmail.com>",
+  "peerDependencies": {
+    "preact": "*"
+  },
+  "dependencies": {
+    "flatpickr": "^4.5.1",
+    "preact": "^8.3.1"
+  }
+}
