@@ -1,8 +1,10 @@
 {
   "name": "preact-flatpickr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "reveal": true,
+  "main": "preact-flatpickr.js",
+  "description": "Flatpickr component for Preact.",
   "author": "Mark Molnar <molnarpw@gmail.com>",
   "peerDependencies": {
     "preact": "*"
@@ -10,5 +12,14 @@
   "dependencies": {
     "flatpickr": "^4.5.1",
     "preact": "^8.3.1"
-  }
+  },
+  "keywords": [
+    "preact",
+    "date-picker",
+    "date",
+    "picker",
+    "date picker",
+    "datepicker",
+    "preact-component"
+  ]
 }
