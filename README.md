@@ -51,4 +51,4 @@ You can also set themes via the `theme` attribute. Learn more about the options 
 ### License
 - MIT
 
-* I'm new to Preact, do don't bite my head off. 😊
+**I'm new to Preact, so don't bite my head off. 😊**
