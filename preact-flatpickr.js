@@ -26,7 +26,7 @@ export default class Flatpickr extends Component {
     import (`flatpickr/dist/themes/${theme}.css`);
 
     this.state = {
-      config: {},
+      config: props.config && {...props.config} || {},
       instance: null,
     };
   }
