@@ -23,7 +23,7 @@ export default class Flatpickr extends Component {
       console.error('Unsupported theme. Valid themes are: TODO');
     }
     const theme = props.theme || this.defaultOptions.theme;
-    require(`./node_modules/flatpickr/dist/themes/${theme}.css`);
+    import (`flatpickr/dist/themes/${theme}.css`);
 
     this.state = {
       config: {},
