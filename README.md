@@ -4,49 +4,63 @@
 [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> Flatpicker component for Preact.
+> Flatpickr component for Preact ported from react-flatpickr.
 
 ### Getting Started
-
 Install the package by running:
-```
-npm install --save preact-flatpickr
-```
+`npm install --save preact-flatpickr` or `yarn add preact-flatpickr`
+
 
 ### Example
-```javascript
-import { Component } from 'preact';
-import Flatpickr from 'preact-flatpickr';
+```jsx
+import 'flatpickr/dist/themes/material_green.css'
 
-export default class App extends Component {
-  constructor(props) {
-    super(props)
+import { Component, h } from 'preact'
+import Flatpickr from 'preact-flatpickr'
+
+class App extends Component {
+  constructor() {
+    super();
 
     this.state = {
-      flatpickrConfig: {
-        'weekNumbers': true
-      }
-    }
+      date: new Date()
+    };
   }
-  render() {
+
+  render(props, state) {
     return (
-      <div>
-        <Flatpickr
-          theme="dark"
-          config={this.state.flatpickrConfig}
-          onChange={() => console.log('You just changed the date.')}>
-        </Flatpickr>
-      </div>
-    );
+      <Flatpickr
+        value={state.date}
+        onChange={date => { this.setState({date}) }} />
+    )
   }
 }
 ```
+* `flatpickr options`: you can pass all `flatpickr parameters` to `props.options`
+* All flatpickr [hooks](https://flatpickr.js.org/events/)  can be passed as a JSX prop, or to `props.options`
+
+```jsx
+<Flatpickr options={{minDate: '2017-01-01'}} />
+```
+
+
+### Themes
+You can import the style for flatpickr manually, like so: `import 'flatpickr/dist/themes/theme.css'`
+or you can use the `theme` attribute:
+```jsx
+<Flatpickr
+        theme="material_green"
+        value={date}
+        onChange={date => { this.setState({date}) }} />
+```
+
+Learn more about the themes [here](https://flatpickr.js.org/themes/).
+
 
 ### API
-
 Every [Flatpickr](https://flatpickr.js.org/) configuration option is available.
 You can check out every option [here](https://flatpickr.js.org/options/).
-You can also set themes via the `theme` attribute. Learn more about the options [here](https://flatpickr.js.org/themes/).
+
 
 ### License
 - MIT
