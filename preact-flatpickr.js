@@ -1,4 +1,4 @@
-import {Component, h} from 'preact';
+import {Component, h} from 'preact'
 import Flatpickr from 'flatpickr'
 
 const themes = [
@@ -9,7 +9,7 @@ const themes = [
     'material_orange',
     'airbnb',
     'confetti',
-];
+]
 const hooks = [
     'onChange',
     'onOpen',
@@ -22,17 +22,20 @@ const hooks = [
 ]
 
 class PreactFlatpickr extends Component {
-    constructor(props) {
-        super(props);
-        if (props.theme) {
-            if (themes.includes(props.theme)) {
-                require(`flatpickr/dist/themes/${props.theme}.css`);
-            }
-            else {
-                console.error(`the theme ${props.theme} is not valid. Valid themes: ${themes.join(", ")}`);
-            }
+
+    static defaultProps = {
+        options: {}
+    }
+
+    constructor({theme, ...props}) {
+        super(props)
+        if (theme && !themes.includes(theme)) {
+            console.error(`the theme ${theme} is not valid. Valid themes: ${themes.join(", ")}`)
         }
-        this.bindNode = node => this.node = node;
+        else if (theme) {
+            require(`flatpickr/dist/themes/${theme}.css`)
+        }
+        this.bindNode = node => this.node = node
     }
 
     componentWillReceiveProps(props) {
@@ -41,30 +44,32 @@ class PreactFlatpickr extends Component {
 
         // Add prop hooks to options
         hooks.forEach(hook => {
-            if (props[hook] !== undefined) {
+            if (props.hasOwnProperty(hook)) {
                 options[hook] = props[hook]
             }
             // Add prev ones too so we can compare against them later
-            if (this.props[hook] !== undefined) {
+            if (this.props.hasOwnProperty(hook)) {
                 prevOptions[hook] = this.props[hook]
             }
         })
 
         const optionsKeys = Object.getOwnPropertyNames(options)
 
-        optionsKeys.forEach(key => {
+        for (let index = optionsKeys.length - 1; index >= 0; index--) {
+            const key = optionsKeys[index]
             let value = options[key]
 
             if (value !== prevOptions[key]) {
                 // Hook handlers must be set as an array
-                if (hooks.includes(key) && !Array.isArray(value)) {
+                if (hooks.indexOf(key) !== -1 && !Array.isArray(value)) {
                     value = [value]
                 }
+
                 this.flatpickr.set(key, value)
             }
-        });
+        }
 
-        if (props.value !== undefined && props.value !== this.props.value) {
+        if (props.hasOwnProperty('value') && props.value !== this.props.value) {
             this.flatpickr.setDate(props.value, false)
         }
     }
@@ -79,14 +84,14 @@ class PreactFlatpickr extends Component {
 
         // Add prop hooks to options
         hooks.forEach(hook => {
-            if (this.props[hook] !== undefined) {
+            if (this.props[hook]) {
                 options[hook] = this.props[hook]
             }
         })
 
         this.flatpickr = new Flatpickr(this.node, options)
 
-        if (this.props.value !== undefined) {
+        if (this.props.hasOwnProperty('value')) {
             this.flatpickr.setDate(this.props.value, false)
         }
     }
@@ -97,10 +102,12 @@ class PreactFlatpickr extends Component {
 
     render() {
         // eslint-disable-next-line no-unused-vars
-        const {options, defaultValue, value, children, theme, ...props} = this.props
+        const {options, theme, defaultValue, value, children, ...props} = this.props
 
         // Don't pass hooks to dom node
-        hooks.forEach(hook => delete props[hook]);
+        hooks.forEach(hook => {
+            delete props[hook]
+        })
 
         return options.wrap
             ? (
