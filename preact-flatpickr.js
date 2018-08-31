@@ -1,105 +1,119 @@
-import { Component, createElement } from 'preact';
-import flatpickr from 'flatpickr';
+import {Component, h} from 'preact';
+import Flatpickr from 'flatpickr'
 
-export default class Flatpickr extends Component {
-  constructor(props) {
-    super(props);
+const themes = [
+    'dark',
+    'material_blue',
+    'material_green',
+    'material_red',
+    'material_orange',
+    'airbnb',
+    'confetti',
+];
+const hooks = [
+    'onChange',
+    'onOpen',
+    'onClose',
+    'onMonthChange',
+    'onYearChange',
+    'onReady',
+    'onValueUpdate',
+    'onDayCreate'
+]
 
-    this.defaultOptions = {
-      theme: 'airbnb',
-    };
-
-    this.themes = {
-      dark: true,
-      material_blue: true,
-      material_green: true,
-      material_red: true,
-      material_orange: true,
-      airbnb: true,
-      confetti: true,
-    };
-
-    if (props.theme && !this.themes[props.theme]) {
-      console.error('Unsupported theme. Valid themes are: TODO');
-    }
-    const theme = props.theme || this.defaultOptions.theme;
-    import (`flatpickr/dist/themes/${theme}.css`);
-
-    this.state = {
-      config: props.config && {...props.config} || {},
-      instance: null,
-    };
-  }
-
-  render(props) {
-    return <input id="flatpickr-instance" />;
-  }
-
-  create() {
-    const instance = flatpickr('#flatpickr-instance', this.state.config);
-    const modifiedConfig = instance.config;
-
-    this.registerEvents(
-      [
-        'onChange',
-        'onClose',
-        'onDayCreate',
-        'onDestroy',
-        'onKeyDown',
-        'onMonthChange',
-        'onOpen',
-        'onParseConfig',
-        'onReady',
-        'onValueUpdate',
-        'onYearChange',
-        'onPreCalendarPosition',
-      ],
-      this.props,
-    );
-
-    this.setState({
-      config: { ...modifiedConfig, ...this.state.config },
-      instance,
-    });
-  }
-
-  recreate(props) {
-    this.state.instance.destroy();
-    this.create();
-  }
-
-  updateConfiguration(props) {
-    let config = this.state.instance.config;
-
-    if (props.config) {
-      config = { ...this.state.instance.config, ...props.config };
-      Object.keys(props.config).forEach(key => {
-        this.state.instance.set(key, props.config[key]);
-      });
+class PreactFlatpickr extends Component {
+    constructor(props) {
+        super(props);
+        if (props.theme) {
+            if (themes.includes(props.theme)) {
+                require(`flatpickr/dist/themes/${props.theme}.css`);
+            }
+            else {
+                console.error(`the theme ${props.theme} is not valid. Valid themes: ${themes.join(", ")}`);
+            }
+        }
+        this.bindNode = node => this.node = node;
     }
 
-    this.setState({
-      config
-    });
-  }
+    componentWillReceiveProps(props) {
+        const {options} = props
+        const prevOptions = this.props.options
 
-  componentWillReceiveProps(props, state) {
-    this.updateConfiguration(props);
-    this.recreate(props);
-  }
+        // Add prop hooks to options
+        hooks.forEach(hook => {
+            if (props[hook] !== undefined) {
+                options[hook] = props[hook]
+            }
+            // Add prev ones too so we can compare against them later
+            if (this.props[hook] !== undefined) {
+                prevOptions[hook] = this.props[hook]
+            }
+        })
 
-  componentDidMount(state) {
-    this.create();
+        const optionsKeys = Object.getOwnPropertyNames(options)
 
-    // Recreating so the configuration gets set.
-    this.recreate(this.props);
-  }
+        optionsKeys.forEach(key => {
+            let value = options[key]
 
-  registerEvents(events, props) {
-    events.forEach(event => {
-      this.setState({
-        config: { ...this.state.config, [event]: props[event] },
-      });
-    });
-  }
+            if (value !== prevOptions[key]) {
+                // Hook handlers must be set as an array
+                if (hooks.includes(key) && !Array.isArray(value)) {
+                    value = [value]
+                }
+                this.flatpickr.set(key, value)
+            }
+        });
+
+        if (props.value !== undefined && props.value !== this.props.value) {
+            this.flatpickr.setDate(props.value, false)
+        }
+    }
+
+    componentDidMount() {
+        const options = {
+            onClose: () => {
+                this.node.blur && this.node.blur()
+            },
+            ...this.props.options
+        }
+
+        // Add prop hooks to options
+        hooks.forEach(hook => {
+            if (this.props[hook] !== undefined) {
+                options[hook] = this.props[hook]
+            }
+        })
+
+        this.flatpickr = new Flatpickr(this.node, options)
+
+        if (this.props.value !== undefined) {
+            this.flatpickr.setDate(this.props.value, false)
+        }
+    }
+
+    componentWillUnmount() {
+        this.flatpickr.destroy()
+    }
+
+    render() {
+        // eslint-disable-next-line no-unused-vars
+        const {options, defaultValue, value, children, theme, ...props} = this.props
+
+        // Don't pass hooks to dom node
+        hooks.forEach(hook => delete props[hook]);
+
+        return options.wrap
+            ? (
+                <div {...props} ref={this.bindNode}>
+                    {children}
+                </div>
+            )
+            : (
+                <input {...props} defaultValue={defaultValue}
+                       ref={this.bindNode}/>
+            )
+    }
+
 }
+
+export default PreactFlatpickr
